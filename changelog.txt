@@ -1,3 +1,8 @@
+changelog - 30 mar 2024 04:36:06(yes, this is AM)
+changed:
+ - std.typeof now correctly returns the type of a variable
+
+
 changelog - 30 mar 2024 04:28:15(yes, this is AM)
 introduced:
  - std now has .typeof, that returns a string with the type of the element passed to it
