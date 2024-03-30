@@ -128,7 +128,7 @@ int main(int argc, char const *argv[]) {
     // Read the content of the main JavaScript file
     std::string scriptContent = read(argv[1]);
     if (scriptContent.empty()) {
-        std::cerr << "Error reading main.js file." << std::endl;
+        std::cerr << "Error reading " << argv[1] << std::endl;
         duk_destroy_heap(context);
         return 1;
     }
