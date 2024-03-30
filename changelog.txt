@@ -1,0 +1,11 @@
+changelog - 30 mar 2024 04:28:15(yes, this is AM)
+introduced:
+ - std now has .typeof, that returns a string with the type of the element passed to it
+
+changelog - 30 mar 2024 04:16:51(yes, this is AM)
+introduced:
+ - a std lib, just call std.<function or variable> from js
+
+changed:
+ - makefile now has a "modules" target, to build the modules if wanted
+ - module api now allows you to retrieve functions from modules

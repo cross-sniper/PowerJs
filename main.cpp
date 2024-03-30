@@ -1,9 +1,10 @@
+#include <duk_config.h>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <duktape.h>
 #include <dlfcn.h> // For dynamic loading of shared object files
-
+#include "std.cpp"
 // Function to read the content of a file into a string
 std::string read(const char* name) {
     std::string str;
@@ -111,13 +112,14 @@ int main(int argc, char const *argv[]) {
     // Push argv as a variable
     duk_push_object(context);
     duk_push_array(context);
-
     for (int i = 0; i < argc; ++i) {
         duk_push_string(context, argv[i]);
         duk_put_prop_index(context, -2, i);
     }
     duk_put_prop_string(context, -2 ,"args");
+
     duk_put_global_string(context, "mix");
+    init_std(context);
 
     // Register the require function
     duk_push_c_function(context, require,1);
