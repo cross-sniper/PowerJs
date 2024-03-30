@@ -1,7 +1,27 @@
 # mix js engine
 
+# Attention
+mix currently does not work on windows, reason: we currently use unix-like file paths for some things(like module loading), so until we can make it work with windows' file paths, use it under wsl, or on a unix-like system
+
 ## What is mix?
 Mix is a simple JavaScript engine built with Duktape, designed primarily for game development. It provides a module API for extending its functionality.
+
+# Building mix
+to build mix, git clone this repo, then cd into it, afterwords, make sure you have duktape(and any lib needed by the modules(see makefile)), and run make.
+If all went well, you should have a `mix` binary on the root folder of the project
+simply do `./mix <file>.js` to run it
+
+# Module API
+
+## how it works
+the module api has two ways of functioning, per-project, or system-wide
+
+### per-project
+to make the api work per project, the shared library you are trying to call needs to be on the same directory you ran mix from
+
+### system-wide
+you need to make sure the module is not in the same folder you ran mix from, and is within `~/.mix/modules`, mix will handle the rest by itself
+
 
 To define a module in C++, you can follow this pattern:
 
@@ -33,3 +53,16 @@ example.example()
 ```
 
 This will output `"this is a example module"` to the console.
+
+
+# included modules
+there are 3(as of 22:28 29-03-2024)
+
+- example:
+  - the example included in this document
+
+- fetch:
+  - a simple implementation of JS's fetch api, using curl
+- file:
+  - a file handling api, with `open`, `read`, `close`, `write`
+
