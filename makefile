@@ -14,4 +14,6 @@ raylib-module:mix modules/raylib-module.cpp
 all:mix modules raylib-module
 
 install:all ~/bin
-	cp mix ~/bin
+	mkdir -p ~/.mix
+	cp mix ~/.mix/
+	ln ~/.mix/mix ~/bin

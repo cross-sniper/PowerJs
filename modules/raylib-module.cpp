@@ -20,6 +20,26 @@ typedef struct MigImage{
 // TODO: parse color from string
 // TODO: load the image from a file
 
+Rectangle getRectangle(duk_context* ctx, int offset) {
+    Rectangle r = {0, 0, 0, 0}; // Initialize rectangle to zero
+    duk_get_prop_string(ctx, offset, "x");
+    duk_get_prop_string(ctx, offset, "y");
+    duk_get_prop_string(ctx, offset, "width");
+    duk_get_prop_string(ctx, offset, "height");
+
+    // Check if all properties exist and are numbers
+    if (duk_is_number(ctx, -4) && duk_is_number(ctx, -3) && duk_is_number(ctx, -2) && duk_is_number(ctx, -1)) {
+        // Extract rectangle values
+        r.x = duk_get_int(ctx, -4);
+        r.y = duk_get_int(ctx, -3);
+        r.width = duk_get_int(ctx, -2);
+        r.height = duk_get_int(ctx, -1);
+        return r;
+    }
+    printf("Error: Rectangle properties missing or not numbers\n");
+    exit(1);
+}
+
 Color getColor(duk_context* ctx, int offset) {
     Color c = {0, 0, 0, 255}; // Initialize color to black with full opacity
 
@@ -136,7 +156,24 @@ static duk_ret_t endDrawing(duk_context* ctx){
 	EndDrawing();
 	return 0;
 }
-
+static duk_ret_t drawRectLines(duk_context* ctx){
+    Rectangle rec;
+    rec.x = duk_get_number(ctx, 0);
+    rec.y = duk_get_number(ctx, 1);
+    rec.width = duk_get_number(ctx, 2);
+    rec.height = duk_get_number(ctx, 3);
+    Color c = getColor(ctx, 4);
+    DrawRectangleLines(rec.x, rec.y, rec.width, rec.height, c);
+    return 0;
+}
+static duk_ret_t drawCircle(duk_context* ctx){
+    int x = duk_get_number(ctx, 0);
+    int y = duk_get_number(ctx, 1);
+    int radius = duk_get_number(ctx, 2);
+    Color c = getColor(ctx, 3);
+    DrawCircle(x, y, radius, c);
+    return 0;
+}
 duk_func fns[] = {
 	{"InitWindow", initwin},
 	{"CloseWindow", closewin},
@@ -149,7 +186,8 @@ duk_func fns[] = {
 	{"DrawText", drawText},
 	{"DrawRectangle", drawRectangle},
 	{"IsKeyDown", isKeyDown},
-
+    {"DrawRectangleLines", drawRectLines},
+    {"DrawCircle", drawCircle},
 	{NULL, NULL}
 };
 
