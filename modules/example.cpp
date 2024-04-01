@@ -10,6 +10,7 @@ duk_func fns[] = {
 };
 extern "C" duk_ret_t dukopen_example(duk_context* ctx)
 {
-	registerModule(ctx, "example", fns);
+	registerModule(ctx, fns);
+	setGlobalModule(ctx, "example");
 	return 1;
 }

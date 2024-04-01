@@ -1,10 +1,10 @@
 # Todos
  - [ ] a string module, with conversion functions
-  - [ ] string to number
-  - [ ] number to string
+  - [x] string to number
+  - [x] number to string
   - [ ] string to byte
   - [ ] byte to string
-   etc
+
  - [ ] a json module/lib, to deal with json
   - [ ] json.load
   - [ ] json.parse
