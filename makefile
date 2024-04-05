@@ -5,6 +5,7 @@ mix:main.cpp std.cpp
 modules:mix modular.hpp
 	g++ modules/fetch.cpp -o ~/.mix/modules/fetch.so -shared -lduktape -lcurl -fPIC ${extra_flags}
 	g++ modules/file.cpp -o ~/.mix/modules/file.so -shared -lduktape -lcurl -fPIC ${extra_flags}
+	g++ modules/core.cpp -o ~/.mix/modules/core.so -shared -lduktape -fPIC ${extra_flags}
 	g++ modules/example.cpp -o ~/.mix/modules/example.so -shared -lduktape -fPIC ${extra_flags}
 
 raylib-module:mix modules/raylib-module.cpp
