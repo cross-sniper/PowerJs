@@ -27,19 +27,83 @@ std::string read(const char* name) {
 
 // Define a typedef for the function signature of the Duktape module open function
 typedef void (*duk_module_open_function)(duk_context *);
-// Function to handle print
 static duk_ret_t print(duk_context *ctx) {
-    std::cout << duk_safe_to_string(ctx, -1) << std::endl;
+    int nargs = duk_get_top(ctx); // Get the number of arguments
+
+    for (int i = 0; i < nargs; ++i) {
+        switch (duk_get_type(ctx, i)) {
+            case DUK_TYPE_NONE:
+                std::cout << "none";
+                break;
+            case DUK_TYPE_UNDEFINED:
+                std::cout << "undefined";
+                break;
+            case DUK_TYPE_NULL:
+                std::cout << "null";
+                break;
+            case DUK_TYPE_BOOLEAN:
+                std::cout << (duk_to_boolean(ctx, i) ? "true" : "false");
+                break;
+            case DUK_TYPE_NUMBER:
+                std::cout << duk_to_number(ctx, i);
+                break;
+            case DUK_TYPE_STRING:
+                std::cout << duk_safe_to_string(ctx, i);
+                break;
+            case DUK_TYPE_OBJECT: {
+                duk_enum(ctx, i, DUK_ENUM_OWN_PROPERTIES_ONLY); // Enumerate own properties
+                std::cout << "[\n  ";
+                int count = 0;
+                while (duk_next(ctx, -1, 1)) {
+                    if (count > 0) {
+                        std::cout << ", "; // Add comma if not the first property
+                    }
+                    // TODO: print them in green, like on node
+                    std::cout << "\033[1;32m\"" << duk_safe_to_string(ctx, -1) << "\"\033[0m";                    duk_pop_2(ctx); // Pop key and value
+                    count++;
+                }
+                std::cout << "\n]";
+                duk_pop(ctx); // Pop the enumerator
+                break;
+            }
+            case DUK_TYPE_BUFFER:
+                std::cout << "[buffer]";
+                break;
+            case DUK_TYPE_POINTER:
+                std::cout << "[pointer]";
+                break;
+            case DUK_TYPE_LIGHTFUNC:
+                std::cout << "[lightfunc]";
+                break;
+            default:
+                std::cout << "[unknown]";
+                break;
+        }
+        if (i < nargs - 1) {
+            std::cout << " "; // Separate arguments with space
+        }
+    }
+
+    std::cout << std::endl; // Print a newline
     return 0;
 }
-static duk_ret_t input(duk_context *ctx){
-	const char* prompt = duk_get_string(ctx, 1);
-	char* in;
-	std::cout << prompt;
-	std::cin >> in;
-	duk_push_string(ctx,in);
-	return  1;
+
+static duk_ret_t input(duk_context *ctx) {
+    const char* prompt = duk_get_string(ctx, 0);
+    std::string in;
+    std::cout << prompt << std::flush; // Print the prompt
+
+    // Check if there's input available
+    if (std::cin.peek() == '\n') {
+        std::cin.ignore(); // Ignore the newline character
+    } else {
+        std::getline(std::cin, in); // Read the input
+    }
+
+    duk_push_string(ctx, in.c_str()); // Push input string to the Duktape stack
+    return 1;
 }
+
 
 
 static duk_ret_t load(duk_context *ctx) {
@@ -57,7 +121,7 @@ static duk_ret_t load(duk_context *ctx) {
         void *handle = dlopen(to_require.c_str(), RTLD_LAZY);
         if (!handle) {
             std::cerr << "Error loading shared object file: " << dlerror() << std::endl;
-            return 0; // Return 0 to indicate failure
+            exit(1);// exit on failure
         }
 
         // Construct the function name: dukopen_<module_name>
@@ -68,7 +132,7 @@ static duk_ret_t load(duk_context *ctx) {
         if (!module_open_function) {
             std::cerr << "Error finding module open function: " << dlerror() << std::endl;
             dlclose(handle); // Close the handle
-            return 0; // Return 0 to indicate failure
+            exit(1);// exit on failure
         }
         // Call the module open function to add functionality to the Duktape context/stack
         module_open_function(ctx);
@@ -85,7 +149,7 @@ static duk_ret_t load(duk_context *ctx) {
         void *handle = dlopen(to_require.c_str(), RTLD_LAZY);
         if (!handle) {
             std::cerr << "Error loading shared object file: " << dlerror() << std::endl;
-            return 0; // Return 0 to indicate failure
+            exit(1);// exit on failure
         }
 
         // Construct the function name: dukopen_<module_name>
@@ -96,7 +160,7 @@ static duk_ret_t load(duk_context *ctx) {
         if (!module_open_function) {
             std::cerr << "Error finding module open function: " << dlerror() << std::endl;
             dlclose(handle); // Close the handle
-            return 0; // Return 0 to indicate failure
+            exit(1);// exit on failure
         }
         // Call the module open function to add functionality to the Duktape context/stack
         module_open_function(ctx);
@@ -115,7 +179,7 @@ static duk_ret_t load(duk_context *ctx) {
         void *handle = dlopen(to_require.c_str(), RTLD_LAZY);
         if (!handle) {
             std::cerr << "Error loading shared object file: " << dlerror() << std::endl;
-            return 0; // Return 0 to indicate failure
+            exit(1);// exit on failure
         }
 
         // Construct the function name: dukopen_<module_name>
@@ -126,7 +190,7 @@ static duk_ret_t load(duk_context *ctx) {
         if (!module_open_function) {
             std::cerr << "Error finding module open function: " << dlerror() << std::endl;
             dlclose(handle); // Close the handle
-            return 0; // Return 0 to indicate failure
+            exit(1);// exit on failure
         }
         // Call the module open function to add functionality to the Duktape context/stack
         module_open_function(ctx);
@@ -135,7 +199,7 @@ static duk_ret_t load(duk_context *ctx) {
     }
 
     std::cerr << "Module '" << module_name << "' not found." << std::endl;
-    return 0; // Return 0 to indicate failure
+    exit(1);// exit on failure
 }
 
 static duk_ret_t require(duk_context *ctx) {
