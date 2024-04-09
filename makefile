@@ -22,4 +22,4 @@ install:all ~/bin
 	cp mix ~/.mix/
 
 	# Check if the symlink already exists, and skip if it does
-	if [ -L ~/bin/mix ]; then ln -s ~/.mix/mix ~/bin;else echo "Symlink already exists, skipping...";fi
+	if [ -L ~/bin/mix ]; then echo "Symlink already exists, skipping...";else ln -s ~/.mix/mix ~/bin ;fi
