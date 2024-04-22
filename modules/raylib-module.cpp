@@ -175,11 +175,17 @@ static duk_ret_t drawCircle(duk_context *ctx) {
   DrawCircle(x, y, radius, c);
   return 0;
 }
+
+static duk_ret_t getFrameTime(duk_context *ctx){
+  duk_push_number(ctx, GetFrameTime());
+  return 1;
+}
 duk_func fns[] = {{"InitWindow", initwin},
                   {"CloseWindow", closewin},
                   {"WindowShouldClose", winShouldClose},
                   {"ClearBackground", clearBg},
                   {"DrawFPS", drawfps},
+                  {"GetFrameTime", getFrameTime},
                   {"SetTargetFPS", setTargetFPS},
                   {"BeginDrawing", beginDrawing},
                   {"EndDrawing", endDrawing},
