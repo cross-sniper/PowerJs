@@ -1,3 +1,6 @@
+#pragma once
+#ifndef MODULAR_HPP
+#define MODULAR_HPP
 #include <iostream>
 #include <duktape.h>
 #include <stdexcept>
@@ -60,3 +63,4 @@ inline duk_fn getModuleFunction(duk_context *ctx, const char* moduleName, const 
 
     return func;
 }
+#endif

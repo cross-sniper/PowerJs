@@ -1,4 +1,5 @@
 extra_flags=
+
 mix:main.cpp std.cpp
 	g++ main.cpp -o mix -lduktape ${extra_flags}
 
@@ -8,14 +9,15 @@ modules:mix modular.hpp
 	g++ modules/core.cpp -o ~/.mix/modules/core.so -shared -lduktape -fPIC ${extra_flags}
 	g++ modules/example.cpp -o ~/.mix/modules/example.so -shared -lduktape -fPIC ${extra_flags}
 
-raylib-module:mix modules/raylib-module.cpp
+raylib-module:mix modules/raylib/raylib-module.cpp
 	echo "this is still beeing worked on"
 	cd raylib/src && make CUSTOM_CFLAGS=-fPIC
-	g++ modules/raylib-module.cpp -o ~/.mix/modules/raylib.so -shared -lduktape -lraylib -fPIC -L raylib/src -I raylib/src ${extra_flags}
+	g++ modules/raylib/raylib-module.cpp -o ~/.mix/modules/raylib.so -shared -lduktape -lraylib -fPIC -L raylib/src -I raylib/src ${extra_flags}
 sdl-module:modules/SDL/*
 	g++ modules/SDL/main.cpp -o ~/.mix/modules/sdl.so -shared -lduktape -lSDL2
 
 all:mix modules raylib-module sdl-module
+
 
 install:all ~/bin
 	mkdir -p ~/.mix
