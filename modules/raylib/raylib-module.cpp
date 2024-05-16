@@ -8,23 +8,13 @@ engine allowing you to make games using raylib + javascript(ecmascript, since
 duktape is made for that)
 */
 #include "../../modular.hpp" // for registerModule, duk_fn, duk_func
+#include "camera.cpp"
 #include "raylib.h"
 #include <duk_config.h>
 #include <duktape.h>
 #include <vector>
-#include "camera.cpp"
-
-// .mig: plain text images
-typedef struct MigImage {
-  int w, h;
-  std::vector<char *> colors;
-  unsigned char *data;
-} MigImage;
-
-// TODO: parse color from string
-// TODO: load the image from a file
-
 Rectangle getRectangle(duk_context *ctx, int offset) {
+
   Rectangle r = {0, 0, 0, 0}; // Initialize rectangle to zero
   duk_get_prop_string(ctx, offset, "x");
   duk_get_prop_string(ctx, offset, "y");
@@ -150,6 +140,16 @@ static duk_ret_t drawRectangle(duk_context *ctx) {
   DrawRectangle(rec.x, rec.y, rec.width, rec.height, c);
   return 0;
 }
+static duk_ret_t drawLine(duk_context *ctx) {
+
+  int x = duk_get_number(ctx, 0);
+  int y = duk_get_number(ctx, 1);
+  int x2 = duk_get_number(ctx, 2);
+  int y2 = duk_get_number(ctx, 3);
+  Color c = getColor(ctx, 4);
+  DrawLine(x, y, x2, y2, c);
+  return 0;
+}
 
 static duk_ret_t beginDrawing(duk_context *ctx) {
   BeginDrawing();
@@ -178,11 +178,11 @@ static duk_ret_t drawCircle(duk_context *ctx) {
   return 0;
 }
 
-static duk_ret_t getFrameTime(duk_context *ctx){
+static duk_ret_t getFrameTime(duk_context *ctx) {
   duk_push_number(ctx, GetFrameTime());
   return 1;
 }
-static duk_ret_t getMousePos(duk_context *ctx){
+static duk_ret_t getMousePos(duk_context *ctx) {
   duk_push_object(ctx);
   duk_push_number(ctx, GetMouseX());
   duk_put_prop_string(ctx, -2, "x");
@@ -207,28 +207,32 @@ static duk_ret_t isKeyPressed(duk_context *ctx) {
   duk_push_boolean(ctx, IsKeyPressed(button));
   return 1;
 }
+static duk_ret_t getMouseX(duk_context *ctx) {
+  duk_push_number(ctx, GetMouseX());
+  return 1;
+}
+static duk_ret_t getMouseY(duk_context *ctx) {
+  duk_push_number(ctx, GetMouseY());
+  return 1;
+}
 
-duk_func fns[] = {
-    {"InitWindow",           initwin},
-    {"CloseWindow",          closewin},
-    {"IsMouseButtonDown",    isMouseButtonDown},
-    {"IsMouseButtonPressed", isMouseButtonPressed},
-    {"GetMousePosition",     getMousePos},
-    {"WindowShouldClose",    winShouldClose},
-    {"ClearBackground",      clearBg},
-    {"DrawFPS",              drawfps},
-    {"GetFrameTime",         getFrameTime},
-    {"SetTargetFPS",         setTargetFPS},
-    {"BeginDrawing",         beginDrawing},
-    {"EndDrawing",           endDrawing},
-    {"DrawText",             drawText},
-    {"DrawRectangle",        drawRectangle},
-    {"IsKeyDown",            isKeyDown},
-    {"IsKeyPressed",         isKeyPressed},
-    {"DrawRectangleLines",   drawRectLines},
-    {"DrawCircle",           drawCircle},
-    {NULL,                   NULL}
-};
+duk_func fns[] = {{"InitWindow", initwin},
+                  {"CloseWindow", closewin},
+                  {"WindowShouldClose", winShouldClose},
+                  {"ClearBackground", clearBg},
+                  {"DrawFPS", drawfps},
+                  {"GetFrameTime", getFrameTime},
+                  {"SetTargetFPS", setTargetFPS},
+                  {"BeginDrawing", beginDrawing},
+                  {"EndDrawing", endDrawing},
+                  {"DrawText", drawText},
+                  {"DrawLine", drawLine},
+                  {"DrawRectangle", drawRectangle},
+                  {"IsKeyDown", isKeyDown},
+                  {"IsKeyPressed", isKeyPressed},
+                  {"DrawRectangleLines", drawRectLines},
+                  {"DrawCircle", drawCircle},
+                  {NULL, NULL}};
 
 void init_raylib_keys(duk_context *L) {
   // Alphanumeric keys
@@ -352,6 +356,21 @@ void initMouse(duk_context *L) {
   setObjectIntVal(L, "MOUSE_LEFT_BUTTON", MOUSE_LEFT_BUTTON);
   setObjectIntVal(L, "MOUSE_RIGHT_BUTTON", MOUSE_RIGHT_BUTTON);
   setObjectIntVal(L, "MOUSE_MIDDLE_BUTTON", MOUSE_MIDDLE_BUTTON);
+
+  duk_push_c_function(L, getMouseX, 0);
+  duk_put_prop_string(L, -2, "GetMouseX");
+
+  duk_push_c_function(L, getMouseY, 0);
+  duk_put_prop_string(L, -2, "GetMouseY");
+
+  duk_push_c_function(L, isMouseButtonPressed, 1);
+  duk_put_prop_string(L, -2, "IsMouseButtonPressed");
+
+  duk_push_c_function(L, isMouseButtonDown, 1);
+  duk_put_prop_string(L, -2, "IsMouseButtonDown");
+
+  duk_push_c_function(L, getMousePos, 0);
+  duk_put_prop_string(L, -2, "GetMousePosition");
 }
 
 extern "C" duk_ret_t dukopen_raylib(duk_context *ctx) {
@@ -362,4 +381,3 @@ extern "C" duk_ret_t dukopen_raylib(duk_context *ctx) {
   setGlobalModule(ctx, "raylib");
   return 1;
 }
-

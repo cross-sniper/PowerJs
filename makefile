@@ -1,20 +1,25 @@
 extra_flags=
-
+module_path = ~/.mix/modules/
 mix:main.cpp std.cpp
 	g++ main.cpp -o mix -lduktape ${extra_flags}
+py:
+	g++ main.cpp -o mix.so `pkg-config --cflags --libs python-3.12-embed` -lduktape ${extra_flags} -fPIC -shared -DPY_MOD
 
-modules:mix modular.hpp
-	g++ modules/fetch.cpp -o ~/.mix/modules/fetch.so -shared -lduktape -lcurl -fPIC ${extra_flags}
-	g++ modules/file.cpp -o ~/.mix/modules/file.so -shared -lduktape -lcurl -fPIC ${extra_flags}
-	g++ modules/core.cpp -o ~/.mix/modules/core.so -shared -lduktape -fPIC ${extra_flags}
-	g++ modules/example.cpp -o ~/.mix/modules/example.so -shared -lduktape -fPIC ${extra_flags}
+module:
+	if [ ! -d $(module_path) ]; then mkdir -p $(module_path); fi
+	g++ modules/fetch.cpp -o $(module_path)fetch.so -shared -lduktape -lcurl -fPIC ${extra_flags}
+	g++ modules/file.cpp -o $(module_path)file.so -shared -lduktape -lcurl -fPIC ${extra_flags}
+	g++ modules/core.cpp -o $(module_path)core.so -shared -lduktape -fPIC ${extra_flags}
+	g++ modules/example.cpp -o $(module_path)example.so -shared -lduktape -fPIC ${extra_flags}
+	g++ modules/server.cpp -o $(module_path)server.so -lduktape -shared -fPIC
 
 raylib-module:mix modules/raylib/raylib-module.cpp
 	echo "this is still beeing worked on"
 	cd raylib/src && make CUSTOM_CFLAGS=-fPIC
-	g++ modules/raylib/raylib-module.cpp -o ~/.mix/modules/raylib.so -shared -lduktape -lraylib -fPIC -L raylib/src -I raylib/src ${extra_flags}
+	g++ modules/raylib/raylib-module.cpp -o $(module_path)raylib.so -shared -lduktape -lraylib -fPIC -L raylib/src -I raylib/src ${extra_flags}
+
 sdl-module:modules/SDL/*
-	g++ modules/SDL/main.cpp -o ~/.mix/modules/sdl.so -shared -lduktape -lSDL2
+	g++ modules/SDL/main.cpp -o $(module_path)sdl.so -shared -lduktape -lSDL2
 
 all:mix modules raylib-module sdl-module
 

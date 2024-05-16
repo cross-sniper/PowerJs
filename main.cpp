@@ -62,8 +62,8 @@ static duk_ret_t print(duk_context *ctx) {
           std::cout << ", "; // Add comma if not the first property
         }
         // TODO: print them in green, like on node
-        std::cout << "\033[1;32m\""<<duk_safe_to_string(ctx, -2)<<"\": \"" << duk_safe_to_string(ctx, -1)
-                  << "\"\033[0m";
+        std::cout << "\033[1;32m\"" << duk_safe_to_string(ctx, -2) << "\": \""
+                  << duk_safe_to_string(ctx, -1) << "\"\033[0m";
         duk_pop_2(ctx); // Pop key and value
         count++;
       }
@@ -255,18 +255,7 @@ static duk_ret_t require(duk_context *ctx) {
   return 1;
 }
 
-int main(int argc, char const *argv[]) {
-  if (argc < 2) {
-    printf("pass a file, %s <file>\n", argv[0]);
-    exit(1);
-  }
-  int EXIT_CODE = 0;
-  duk_context *context = duk_create_heap_default();
-  if (!context) {
-    std::cerr << "Error creating Duktape context." << std::endl;
-    return 1;
-  }
-
+void initMix(duk_context *context, int argc, const char *argv[]) {
   // Push argv as a variable
   duk_push_object(context);
   duk_push_array(context);
@@ -291,8 +280,25 @@ int main(int argc, char const *argv[]) {
   duk_put_global_string(context, "print");
   duk_push_c_function(context, quit, DUK_VARARGS);
   duk_put_global_string(context, "quit");
+}
+
+#ifndef PY_MOD
+
+int main(int argc, char const *argv[]) {
+  if (argc < 2) {
+    printf("pass a file, %s <file>\n", argv[0]);
+    exit(1);
+  }
+  int EXIT_CODE = 0;
+  duk_context *context = duk_create_heap_default();
+  if (!context) {
+    std::cerr << "Error creating Duktape context." << std::endl;
+    return 1;
+  }
+  initMix(context, argc, argv);
   // Read the content of the main JavaScript file
-  if((strcmp(argv[1], ".") == 0) || (strcmp(argv[1], "./") == 0) || (strcmp(argv[1], "..") == 0)) {
+  if ((strcmp(argv[1], ".") == 0) || (strcmp(argv[1], "./") == 0) ||
+      (strcmp(argv[1], "..") == 0)) {
     argv[1] = "main.js";
   }
   std::string scriptContent = read(argv[1]);
@@ -310,3 +316,58 @@ int main(int argc, char const *argv[]) {
   duk_destroy_heap(context);
   return EXIT_CODE;
 }
+#else
+
+#include <python3.12/Python.h>
+duk_context *global_context;
+PyObject *initMixture(PyObject *self, PyObject *args) {
+  global_context = duk_create_heap_default();
+  if (!global_context) {
+    printf("Error creating Duktape context.\n");
+    exit(1);
+  }
+  initMix(global_context, 0, (const char *[]){""});
+
+  return 0;
+}
+
+PyObject *run(PyObject *self, PyObject *args) {
+  if (!global_context) {
+    printf("Error: duktape not initialized.\n");
+    exit(1);
+  }
+  const char *code;
+  if (!PyArg_ParseTuple(args, "s", &code)) {
+    printf("Error parsing arguments.\n");
+    duk_destroy_heap(global_context);
+    exit(1);
+  }
+  int res = duk_peval_string(global_context, code);
+
+  if (res != 0) {
+    printf("Error evaluating JavaScript: %s\n",
+           duk_safe_to_string(global_context, -1));
+    duk_destroy_heap(global_context);
+    exit(1);
+  }
+  return 0;
+}
+
+PyObject *destroy(PyObject *self, PyObject *args) {
+  duk_destroy_heap(global_context);
+  return 0;
+}
+
+PyMethodDef mix_module_methods[] = {
+    {"init", initMixture, METH_NOARGS, "init"},
+    {"run", run, METH_VARARGS, "run"},
+    {"destroy", destroy, METH_NOARGS, "destroy"},
+    {NULL, NULL, 0, NULL}};
+
+PyModuleDef mix_module = {
+    PyModuleDef_HEAD_INIT, "mix", NULL, -1,
+    mix_module_methods,    NULL,  NULL, NULL,
+};
+PyMODINIT_FUNC PyInit_mix(void) { return PyModule_Create(&mix_module); }
+
+#endif

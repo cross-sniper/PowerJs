@@ -89,7 +89,7 @@ void CamInit(duk_context *ctx) {
   duk_put_prop_string(ctx, -2, "updateCameraOffset");
 
   duk_push_c_function(ctx, getScreenSize, 0);
-  duk_put_prop_string(ctx, -2, "getScreenSize");
+  duk_put_prop_string(ctx, -2, "GetScreenSize");
 
   duk_push_c_function(ctx, beginCam, 0);
   duk_put_prop_string(ctx, -2, "BeginCam");
