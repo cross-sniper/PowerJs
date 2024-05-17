@@ -1,4 +1,4 @@
-#include "../../modular.hpp"
+#include "modular.hpp"
 #include <raylib.h>
 
 Camera2D cam;

@@ -7,8 +7,9 @@ what this module does, is to provide a way to access the raylib api from the js
 engine allowing you to make games using raylib + javascript(ecmascript, since
 duktape is made for that)
 */
-#include "../../modular.hpp" // for registerModule, duk_fn, duk_func
+#include "modular.hpp" // for registerModule, duk_fn, duk_func
 #include "camera.cpp"
+#include "images.cpp"
 #include "raylib.h"
 #include <duk_config.h>
 #include <duktape.h>
@@ -35,42 +36,6 @@ Rectangle getRectangle(duk_context *ctx, int offset) {
   exit(1);
 }
 
-Color getColor(duk_context *ctx, int offset) {
-  Color c = {0, 0, 0, 255}; // Initialize color to black with full opacity
-
-  // Check if the argument at 'offset' is an object
-  if (!duk_is_object(ctx, offset)) {
-    // Handle error: Argument is not an object
-    printf("Error: Argument at offset %d is not an object\n", offset);
-    // print the type
-    printf("Type: %d\n", duk_get_type(ctx, offset));
-    return c;
-  }
-
-  // Get the 'r', 'g', 'b', and 'a' properties from the object
-  duk_get_prop_string(ctx, offset, "r");
-  duk_get_prop_string(ctx, offset, "g");
-  duk_get_prop_string(ctx, offset, "b");
-  duk_get_prop_string(ctx, offset, "a");
-
-  // Check if all properties exist and are numbers
-  if (duk_is_number(ctx, -4) && duk_is_number(ctx, -3) &&
-      duk_is_number(ctx, -2) && duk_is_number(ctx, -1)) {
-    // Extract RGBA values
-    c.r = duk_get_int(ctx, -4);
-    c.g = duk_get_int(ctx, -3);
-    c.b = duk_get_int(ctx, -2);
-    c.a = duk_get_int(ctx, -1);
-  } else {
-    // Handle error: Properties missing or not numbers
-    printf("Error: RGBA properties missing or not numbers\n");
-  }
-
-  // Pop values from the stack
-  duk_pop_n(ctx, 4);
-
-  return c;
-}
 static duk_ret_t initwin(duk_context *ctx) {
   if (duk_get_top(ctx) != 3) {
     duk_error(ctx, DUK_ERR_TYPE_ERROR, "wrong number of arguments");
@@ -378,6 +343,7 @@ extern "C" duk_ret_t dukopen_raylib(duk_context *ctx) {
   init_raylib_keys(ctx);
   initMouse(ctx);
   CamInit(ctx);
+  initImg(ctx);
   setGlobalModule(ctx, "raylib");
   return 1;
 }

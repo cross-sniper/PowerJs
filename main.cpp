@@ -151,10 +151,10 @@ static duk_ret_t load(duk_context *ctx) {
     return 1; // Return 1 to indicate success
   }
 #ifndef _WIN32
-  to_require = "./" + (std::string) "mixed" + std::string(module_name) + ".so";
+  to_require = "./" + (std::string) "libs" + std::string(module_name) + ".so";
 #else
   to_require =
-      ".\\" + (std::string) "mixed" + std::string(module_name) + ".dll";
+      ".\\" + (std::string) "libs" + std::string(module_name) + ".dll";
 #endif
   if (access(to_require.c_str(), F_OK) != -1) {
     // Load the shared object file dynamically
@@ -188,14 +188,14 @@ static duk_ret_t load(duk_context *ctx) {
 
     return 1; // Return 1 to indicate success
   }
-  // Check if the module exists in ~/.mix/modules
+  // Check if the module exists in ~/.mix/libs
   std::string home_directory = getenv("HOME");
 #ifndef _WIN32
   to_require =
-      home_directory + "/.mix/modules/" + std::string(module_name) + ".so";
+      home_directory + "/.mix/libs/" + std::string(module_name) + ".so";
 #else
   to_require =
-      home_directory + "\\.mix\\modules\\" + std::string(module_name) + ".dll";
+      home_directory + "\\.mix\\libs\\" + std::string(module_name) + ".dll";
 #endif
   if (access(to_require.c_str(), F_OK) != -1) {
     // Load the shared object file dynamically

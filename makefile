@@ -1,6 +1,7 @@
 extra_flags=
-module_path = ~/.mix/modules/
+module_path = ~/.mix/libs/
 mix:main.cpp std.cpp
+	mkdir -p ${module_path}
 	g++ main.cpp -o mix -lduktape ${extra_flags}
 py:
 	g++ main.cpp -o mix.so `pkg-config --cflags --libs python-3.12-embed` -lduktape ${extra_flags} -fPIC -shared -DPY_MOD
