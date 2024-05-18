@@ -153,8 +153,7 @@ static duk_ret_t load(duk_context *ctx) {
 #ifndef _WIN32
   to_require = "./" + (std::string) "libs" + std::string(module_name) + ".so";
 #else
-  to_require =
-      ".\\" + (std::string) "libs" + std::string(module_name) + ".dll";
+  to_require = ".\\" + (std::string) "libs" + std::string(module_name) + ".dll";
 #endif
   if (access(to_require.c_str(), F_OK) != -1) {
     // Load the shared object file dynamically
@@ -282,8 +281,6 @@ void initMix(duk_context *context, int argc, const char *argv[]) {
   duk_put_global_string(context, "quit");
 }
 
-#ifndef PY_MOD
-
 int main(int argc, char const *argv[]) {
   if (argc < 2) {
     printf("pass a file, %s <file>\n", argv[0]);
@@ -316,58 +313,3 @@ int main(int argc, char const *argv[]) {
   duk_destroy_heap(context);
   return EXIT_CODE;
 }
-#else
-
-#include <python3.12/Python.h>
-duk_context *global_context;
-PyObject *initMixture(PyObject *self, PyObject *args) {
-  global_context = duk_create_heap_default();
-  if (!global_context) {
-    printf("Error creating Duktape context.\n");
-    exit(1);
-  }
-  initMix(global_context, 0, (const char *[]){""});
-
-  return 0;
-}
-
-PyObject *run(PyObject *self, PyObject *args) {
-  if (!global_context) {
-    printf("Error: duktape not initialized.\n");
-    exit(1);
-  }
-  const char *code;
-  if (!PyArg_ParseTuple(args, "s", &code)) {
-    printf("Error parsing arguments.\n");
-    duk_destroy_heap(global_context);
-    exit(1);
-  }
-  int res = duk_peval_string(global_context, code);
-
-  if (res != 0) {
-    printf("Error evaluating JavaScript: %s\n",
-           duk_safe_to_string(global_context, -1));
-    duk_destroy_heap(global_context);
-    exit(1);
-  }
-  return 0;
-}
-
-PyObject *destroy(PyObject *self, PyObject *args) {
-  duk_destroy_heap(global_context);
-  return 0;
-}
-
-PyMethodDef mix_module_methods[] = {
-    {"init", initMixture, METH_NOARGS, "init"},
-    {"run", run, METH_VARARGS, "run"},
-    {"destroy", destroy, METH_NOARGS, "destroy"},
-    {NULL, NULL, 0, NULL}};
-
-PyModuleDef mix_module = {
-    PyModuleDef_HEAD_INIT, "mix", NULL, -1,
-    mix_module_methods,    NULL,  NULL, NULL,
-};
-PyMODINIT_FUNC PyInit_mix(void) { return PyModule_Create(&mix_module); }
-
-#endif

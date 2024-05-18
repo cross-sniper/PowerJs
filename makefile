@@ -3,8 +3,6 @@ module_path = ~/.mix/libs/
 mix:main.cpp std.cpp
 	mkdir -p ${module_path}
 	g++ main.cpp -o mix -lduktape ${extra_flags}
-py:
-	g++ main.cpp -o mix.so `pkg-config --cflags --libs python-3.12-embed` -lduktape ${extra_flags} -fPIC -shared -DPY_MOD
 
 module:
 	if [ ! -d $(module_path) ]; then mkdir -p $(module_path); fi
@@ -22,7 +20,7 @@ raylib-module:mix modules/raylib/raylib-module.cpp
 sdl-module:modules/SDL/*
 	g++ modules/SDL/main.cpp -o $(module_path)sdl.so -shared -lduktape -lSDL2
 
-all:mix modules raylib-module sdl-module
+all:mix module raylib-module sdl-module
 
 
 install:all ~/bin
