@@ -195,14 +195,14 @@ static duk_ret_t load(duk_context *ctx) {
 
     return 1; // Return 1 to indicate success
   }
-  // Check if the module exists in ~/.mix/libs
+  // Check if the module exists in ~/.powerjs/libs
   std::string home_directory = getenv("HOME");
 #ifndef _WIN32
   to_require =
-      home_directory + "/.mix/libs/" + std::string(module_name) + ".so";
+      home_directory + "/.powerjs/libs/" + std::string(module_name) + ".so";
 #else
   to_require =
-      home_directory + "\\.mix\\libs\\" + std::string(module_name) + ".dll";
+      home_directory + "\\.powerjs\\libs\\" + std::string(module_name) + ".dll";
 #endif
   if (access(to_require.c_str(), F_OK) != -1) {
     // Load the shared object file dynamically
@@ -262,7 +262,7 @@ static duk_ret_t require(duk_context *ctx) {
   return 1;
 }
 
-void initMix(duk_context *context, int argc, const char *argv[]) {
+void initpowerjs(duk_context *context, int argc, const char *argv[]) {
   // Push argv as a variable
   duk_push_object(context);
   duk_push_array(context);
@@ -272,7 +272,7 @@ void initMix(duk_context *context, int argc, const char *argv[]) {
   }
   duk_put_prop_string(context, -2, "args");
 
-  duk_put_global_string(context, "mix");
+  duk_put_global_string(context, "powerjs");
   init_std(context);
 
   // Register the load function
@@ -300,7 +300,7 @@ int main(int argc, char const *argv[]) {
     std::cerr << "Error creating Duktape context." << std::endl;
     return 1;
   }
-  initMix(context, argc, argv);
+  initpowerjs(context, argc, argv);
   // Read the content of the main JavaScript file
   if ((strcmp(argv[1], ".") == 0) || (strcmp(argv[1], "./") == 0) ||
       (strcmp(argv[1], "..") == 0)) {
