@@ -6,24 +6,32 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-// Function to read the content of a file into a string
+
 std::string read(const char *name) {
-  std::string str;
-  std::ifstream file(name); // Open the file
-  if (!file.is_open()) {
-    std::cerr << "Error opening file: " << name << std::endl;
-    exit(1);
-  }
+    std::string str;
+    std::ifstream file(name); // Open the file
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << name << std::endl;
+        exit(1);
+    }
 
-  std::string line;
-  while (std::getline(file, line)) { // Read file line by line
-    // Process the line, for example, append it to the string
-    str += line;
-    str += "\n"; // Add newline character since std::getline consumes it
-  }
+    std::string line;
+    bool firstLine = true;
+    while (std::getline(file, line)) { // Read file line by line
+        // Check if it's the first line and if it starts with "#!"
+        if (firstLine) {
+            firstLine = false;
+            if (line.rfind("#!", 0) == 0) {
+                continue; // Skip this line
+            }
+        }
+        // Append the line to the string
+        str += line;
+        str += "\n"; // Add newline character since std::getline consumes it
+    }
 
-  file.close(); // Close the file
-  return str;
+    file.close(); // Close the file
+    return str;
 }
 
 // Define a typedef for the function signature of the Duktape module open

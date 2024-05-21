@@ -5,8 +5,8 @@ static int example(duk_context* ctx){
 }
 
 duk_func fns[] = {
-	{"example",example},
-	{NULL, NULL}
+	{"example",example,"example module"},
+	{NULL, NULL, "NULL"}
 };
 extern "C" duk_ret_t dukopen_example(duk_context* ctx)
 {

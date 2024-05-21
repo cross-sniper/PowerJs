@@ -1,3 +1,4 @@
+#include "../modular.hpp"
 #include <duktape.h>
 #include <curl/curl.h>
 #include <iostream>
@@ -47,10 +48,13 @@ static duk_ret_t get(duk_context *ctx) {
     return 1; // Return 1 to indicate success
 }
 
+duk_func fns[] = {
+    {"get",get,"gets the content from a given url"},
+    {NULL,NULL,NULL}
+};
+
 extern "C" duk_ret_t dukopen_fetch(duk_context *ctx) {
-    duk_push_object(ctx); // Create a new object
-    duk_push_c_function(ctx, get, 1); // Push the fetch function onto the stack
-    duk_put_prop_string(ctx, -2,"get"); // Assign it to a global variable
-    duk_put_global_string(ctx, "fetch"); // push the fetch api onto the stack
+    registerModule(ctx, fns);
+    setGlobalModule(ctx, "fetch");
     return 0; // Return 0 to indicate success
 }

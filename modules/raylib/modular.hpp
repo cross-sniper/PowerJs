@@ -4,7 +4,16 @@
 #include <iostream>
 #include <duktape.h>
 #include <stdexcept>
-#include <raylib.h>
+#include "../../raylib/src/raylib.h"
+
+typedef int (*duk_fn) (duk_context *ctx);
+
+// Structure to represent a function in the module
+typedef struct duk_func {
+    const char *name;
+    duk_fn func;
+    const char* description;
+} duk_func;
 
 inline Color getColor(duk_context *ctx, int offset) {
   Color c = {0, 0, 0, 255}; // Initialize color to black with full opacity
@@ -44,11 +53,6 @@ inline Color getColor(duk_context *ctx, int offset) {
 }
 typedef int (*duk_fn) (duk_context *ctx);
 
-// Structure to represent a function in the module
-typedef struct duk_func {
-    const char *name;
-    duk_fn func;
-} duk_func;
 
 // Function to register a module with its functions
 inline void registerModule(duk_context *ctx, duk_func* functions) {
@@ -62,6 +66,10 @@ inline void registerModule(duk_context *ctx, duk_func* functions) {
         // Set a property on the function to store the function name (useful for error messages)
         duk_push_string(ctx, functions[i].name);
         duk_put_prop_string(ctx, -2, "__name");
+
+        // Set a property on the function to store the function description (useful for error messages)
+        duk_push_string(ctx, functions[i].description);
+        duk_put_prop_string(ctx, -2, "__desc");
 
         duk_put_prop_string(ctx, -2, functions[i].name);
     }

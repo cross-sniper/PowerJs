@@ -5,6 +5,32 @@
 #include <sys/types.h>
 #include <vector>
 
+
+duk_ret_t getRealPath(duk_context *ctx) {
+    const char* file_name = duk_get_string(ctx, 0);
+
+    // Use realpath to get the real path of the file
+    char resolved_path[PATH_MAX];
+    char* path_result = realpath(file_name, resolved_path);
+
+    if (path_result) {
+        // If realpath succeeds, push the resolved path to the Duktape stack
+        duk_push_string(ctx, resolved_path);
+        return 1;
+    } else {
+        // If realpath fails, exit
+        exit(1);
+        return 1;
+    }
+}
+
+duk_ret_t createDirectory(duk_context *ctx) {
+  const char *name = duk_get_string(ctx, 0);
+  printf("did you mean \"os.exec('mkdir -p %s')\"?\n", name);
+  exit(1);
+  return 0;
+}
+
 bool exists(const char *name) {
   FILE *f = fopen(name, "rb");
   if (!f) {
@@ -134,6 +160,14 @@ extern "C" duk_ret_t dukopen_file(duk_context *ctx) {
 
   duk_push_c_function(ctx, write, 2);
   duk_put_prop_string(ctx, -2, "write");
+
+  // New function
+  duk_push_c_function(ctx, createDirectory, 1);
+  duk_put_prop_string(ctx, -2, "createDir");
+
+  duk_push_c_function(ctx, getRealPath, 1);
+  duk_put_prop_string(ctx, -2, "getRealPath");
+
 
   duk_put_global_string(
       ctx, "file"); // Assign the object to a global variable "file"

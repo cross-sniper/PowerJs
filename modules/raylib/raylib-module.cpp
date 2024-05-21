@@ -10,7 +10,7 @@ duktape is made for that)
 #include "modular.hpp" // for registerModule, duk_fn, duk_func
 #include "camera.cpp"
 #include "images.cpp"
-#include "raylib.h"
+
 #include <duk_config.h>
 #include <duktape.h>
 #include <vector>
@@ -181,23 +181,23 @@ static duk_ret_t getMouseY(duk_context *ctx) {
   return 1;
 }
 
-duk_func fns[] = {{"InitWindow", initwin},
-                  {"CloseWindow", closewin},
-                  {"WindowShouldClose", winShouldClose},
-                  {"ClearBackground", clearBg},
-                  {"DrawFPS", drawfps},
-                  {"GetFrameTime", getFrameTime},
-                  {"SetTargetFPS", setTargetFPS},
-                  {"BeginDrawing", beginDrawing},
-                  {"EndDrawing", endDrawing},
-                  {"DrawText", drawText},
-                  {"DrawLine", drawLine},
-                  {"DrawRectangle", drawRectangle},
-                  {"IsKeyDown", isKeyDown},
-                  {"IsKeyPressed", isKeyPressed},
-                  {"DrawRectangleLines", drawRectLines},
-                  {"DrawCircle", drawCircle},
-                  {NULL, NULL}};
+duk_func fns[] = {{"InitWindow", initwin, "initializes the window"},
+                  {"CloseWindow", closewin, "closes the window"},
+                  {"WindowShouldClose", winShouldClose, "returns if the window should close"},
+                  {"ClearBackground", clearBg, "clears the background with a given color"},
+                  {"DrawFPS", drawfps, "shows the current fps at a give x,y coordnate"},
+                  {"GetFrameTime", getFrameTime,"returns the current dt(delta time)"},
+                  {"SetTargetFPS", setTargetFPS, "makes raylib try to stay at a given fps"},
+                  {"BeginDrawing", beginDrawing, "begins the drawing process"},
+                  {"EndDrawing", endDrawing, "ends the drawing process"},
+                  {"DrawText", drawText, "draws text on the screen"},
+                  {"DrawLine", drawLine, "draws a line"},
+                  {"DrawRectangle", drawRectangle, "draws a rectangle"},
+                  {"IsKeyDown", isKeyDown, "checks if a key is held down"},
+                  {"IsKeyPressed", isKeyPressed,"checks if a key is pressed"},
+                  {"DrawRectangleLines", drawRectLines, "draws a rectangle outline"},
+                  {"DrawCircle", drawCircle, "draws a circle"},
+                  {NULL, NULL, "end of module header"}};
 
 void init_raylib_keys(duk_context *L) {
   // Alphanumeric keys
@@ -323,18 +323,30 @@ void initMouse(duk_context *L) {
   setObjectIntVal(L, "MOUSE_MIDDLE_BUTTON", MOUSE_MIDDLE_BUTTON);
 
   duk_push_c_function(L, getMouseX, 0);
+  // Set a property on the function to store the function description (useful for error messages)
+  duk_push_string(L, "returns the mouse X position");
+  duk_put_prop_string(L, -2, "__desc");
   duk_put_prop_string(L, -2, "GetMouseX");
 
+
   duk_push_c_function(L, getMouseY, 0);
+  duk_push_string(L, "returns the mouse Y position");
+  duk_put_prop_string(L, -2, "__desc");
   duk_put_prop_string(L, -2, "GetMouseY");
 
   duk_push_c_function(L, isMouseButtonPressed, 1);
+  duk_push_string(L, "returns true if a mouse button has been pressed");
+  duk_put_prop_string(L, -2, "__desc");
   duk_put_prop_string(L, -2, "IsMouseButtonPressed");
 
   duk_push_c_function(L, isMouseButtonDown, 1);
+  duk_push_string(L, "returns true if a mouse button is currently down");
+  duk_put_prop_string(L, -2, "__desc");
   duk_put_prop_string(L, -2, "IsMouseButtonDown");
 
   duk_push_c_function(L, getMousePos, 0);
+  duk_push_string(L, "returns the mouse position");
+  duk_put_prop_string(L, -2, "__desc");
   duk_put_prop_string(L, -2, "GetMousePosition");
 }
 
@@ -344,6 +356,9 @@ extern "C" duk_ret_t dukopen_raylib(duk_context *ctx) {
   initMouse(ctx);
   CamInit(ctx);
   initImg(ctx);
+  // Set a property on the function to store the function description (useful for error messages)
+  duk_push_string(ctx, "raylib wrapper");
+  duk_put_prop_string(ctx, -2, "__desc");
   setGlobalModule(ctx, "raylib");
   return 1;
 }

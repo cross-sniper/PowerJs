@@ -1,6 +1,6 @@
 #include "modular.hpp"
 #include <duktape.h>
-#include <raylib.h>
+
 typedef struct ImgWrapper{
 	Image image;
 	Texture2D texture;
@@ -19,8 +19,8 @@ duk_ret_t load(duk_context *ctx) {
 
 duk_ret_t unloadImage(duk_context *ctx) {
 	ImgWrapper *iw = (ImgWrapper *)duk_require_pointer(ctx, 0);
-	Image *image = &iw->image;
-	UnloadImage(*image);
+	Image image = iw->image;
+	UnloadImage(image);
 	return 0;
 }
 

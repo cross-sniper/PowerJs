@@ -1,31 +1,49 @@
-extra_flags=
-module_path = ~/.mix/libs/
-mix:main.cpp std.cpp
-	mkdir -p ${module_path}
-	g++ main.cpp -o mix -lduktape ${extra_flags}
+# Define compiler and flags
+CXX = g++
+CXXFLAGS = -Wall -Wextra -g -fPIC
+LDLIBS = -lduktape
+MODULE_PATH = ~/.mix/libs/
 
-module:
-	if [ ! -d $(module_path) ]; then mkdir -p $(module_path); fi
-	g++ modules/fetch.cpp -o $(module_path)fetch.so -shared -lduktape -lcurl -fPIC ${extra_flags}
-	g++ modules/file.cpp -o $(module_path)file.so -shared -lduktape -lcurl -fPIC ${extra_flags}
-	g++ modules/core.cpp -o $(module_path)core.so -shared -lduktape -fPIC ${extra_flags}
-	g++ modules/example.cpp -o $(module_path)example.so -shared -lduktape -fPIC ${extra_flags}
-	g++ modules/server.cpp -o $(module_path)server.so -lduktape -shared -fPIC
+# Modules
+MODULES = fetch file core example server os raylib
 
-raylib-module:mix modules/raylib/raylib-module.cpp
-	echo "this is still beeing worked on"
+# Flags for specific modules
+SDL_LIBS = -lSDL2
+RAYLIB_LIBS = -lraylib
+
+# Target: Compile a specific module
+module_%: modules/%.cpp
+	@echo "Compiling $<..."
+	$(CXX) $< -o $(MODULE_PATH)$*.so -shared $(CXXFLAGS) $(LDLIBS) ${$(*)_LIBS}
+
+# Target: Compile Raylib module
+raylib-module: modules/raylib/raylib-module.cpp
+	@echo "Building Raylib module..."
 	cd raylib/src && make CUSTOM_CFLAGS=-fPIC
-	g++ modules/raylib/raylib-module.cpp -o $(module_path)raylib.so -shared -lduktape -lraylib -fPIC -L raylib/src -I raylib/src ${extra_flags}
+	$(CXX) $< -o $(MODULE_PATH)raylib.so -shared $(CXXFLAGS) $(LDLIBS) $(RAYLIB_LIBS) -L raylib/src -I raylib/src
 
-sdl-module:modules/SDL/*
-	g++ modules/SDL/main.cpp -o $(module_path)sdl.so -shared -lduktape -lSDL2
+# Target: Compile SDL module
+sdl-module: modules/SDL/main.cpp
+	@echo "Building SDL module..."
+	$(CXX) $< -o $(MODULE_PATH)sdl.so -shared $(CXXFLAGS) $(LDLIBS) $(SDL_LIBS)
 
-all:mix module raylib-module sdl-module
+# Target: Build all modules
+modules: $(addprefix module_,$(MODULES)) raylib-module sdl-module
 
-
-install:all ~/bin
+# Target: Install
+install: mix $(MODULE_PATH)
+	@echo "Installing mix..."
 	mkdir -p ~/.mix
 	cp mix ~/.mix/
 
 	# Check if the symlink already exists, and skip if it does
-	if [ -L ~/bin/mix ]; then echo "Symlink already exists, skipping...";else ln -s ~/.mix/mix ~/bin ;fi
+	if [ -L ~/bin/mix ]; then echo "Symlink already exists, skipping..."; else ln -s ~/.mix/mix ~/bin; fi
+
+# Target: Create module directory
+$(MODULE_PATH):
+	mkdir -p $@
+
+# Target: Clean
+clean:
+	rm -rf $(MODULE_PATH) mix
+	cd raylib/src && make clean

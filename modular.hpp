@@ -11,6 +11,7 @@ typedef int (*duk_fn) (duk_context *ctx);
 typedef struct duk_func {
     const char *name;
     duk_fn func;
+    const char* description;
 } duk_func;
 
 // Function to register a module with its functions
@@ -25,6 +26,10 @@ inline void registerModule(duk_context *ctx, duk_func* functions) {
         // Set a property on the function to store the function name (useful for error messages)
         duk_push_string(ctx, functions[i].name);
         duk_put_prop_string(ctx, -2, "__name");
+
+        // Set a property on the function to store the function description (useful for error messages)
+        duk_push_string(ctx, functions[i].description);
+        duk_put_prop_string(ctx, -2, "__desc");
 
         duk_put_prop_string(ctx, -2, functions[i].name);
     }
