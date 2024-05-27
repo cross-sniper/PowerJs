@@ -42,12 +42,13 @@ duk_ret_t drawTexture(duk_context *ctx) {
 }
 
 void initImg(duk_context *ctx) {
+	printf("Loading images module...\n");
 	duk_push_c_function(ctx, load, 1);
-	duk_put_prop_string(ctx, -2, "LoadImageAndTexture");
+	duk_put_global_string(ctx, "LoadImageAndTexture");
 	duk_push_c_function(ctx, unloadImage, 1);
-	duk_put_prop_string(ctx, -2, "UnloadImage");
+	duk_put_global_string(ctx, "UnloadImage");
 	duk_push_c_function(ctx, uloadTexture, 1);
-	duk_put_prop_string(ctx, -2, "UnloadTexture");
+	duk_put_global_string(ctx, "UnloadTexture");
 	duk_push_c_function(ctx, drawTexture, 4);
-	duk_put_prop_string(ctx, -2, "DrawTexture");
+	duk_put_global_string(ctx, "DrawTexture");
 }

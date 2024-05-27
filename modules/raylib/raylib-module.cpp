@@ -10,6 +10,7 @@ duktape is made for that)
 #include "modular.hpp" // for registerModule, duk_fn, duk_func
 #include "camera.cpp"
 #include "images.cpp"
+#include "ray-colors.cpp"
 
 #include <duk_config.h>
 #include <duktape.h>
@@ -326,28 +327,28 @@ void initMouse(duk_context *L) {
   // Set a property on the function to store the function description (useful for error messages)
   duk_push_string(L, "returns the mouse X position");
   duk_put_prop_string(L, -2, "__desc");
-  duk_put_prop_string(L, -2, "GetMouseX");
+  duk_put_global_string(L, "GetMouseX");
 
 
   duk_push_c_function(L, getMouseY, 0);
   duk_push_string(L, "returns the mouse Y position");
   duk_put_prop_string(L, -2, "__desc");
-  duk_put_prop_string(L, -2, "GetMouseY");
+  duk_put_global_string(L, "GetMouseY");
 
   duk_push_c_function(L, isMouseButtonPressed, 1);
   duk_push_string(L, "returns true if a mouse button has been pressed");
   duk_put_prop_string(L, -2, "__desc");
-  duk_put_prop_string(L, -2, "IsMouseButtonPressed");
+  duk_put_global_string(L, "IsMouseButtonPressed");
 
   duk_push_c_function(L, isMouseButtonDown, 1);
   duk_push_string(L, "returns true if a mouse button is currently down");
   duk_put_prop_string(L, -2, "__desc");
-  duk_put_prop_string(L, -2, "IsMouseButtonDown");
+  duk_put_global_string(L, "IsMouseButtonDown");
 
   duk_push_c_function(L, getMousePos, 0);
   duk_push_string(L, "returns the mouse position");
   duk_put_prop_string(L, -2, "__desc");
-  duk_put_prop_string(L, -2, "GetMousePosition");
+  duk_put_global_string(L, "GetMousePosition");
 }
 
 extern "C" duk_ret_t dukopen_raylib(duk_context *ctx) {
@@ -356,9 +357,7 @@ extern "C" duk_ret_t dukopen_raylib(duk_context *ctx) {
   initMouse(ctx);
   CamInit(ctx);
   initImg(ctx);
-  // Set a property on the function to store the function description (useful for error messages)
-  duk_push_string(ctx, "raylib wrapper");
-  duk_put_prop_string(ctx, -2, "__desc");
-  setGlobalModule(ctx, "raylib");
+  initColors(ctx);
+
   return 1;
 }

@@ -1,11 +1,14 @@
-load("raylib")
-raylib.InitWindow(800, 450, "raylib")
-print(std.atoi("30"))
-print(std.typeof(std.atoi("30")))
-print(std.after)
-print(powerjs.args)
-player = {
-	x:0,
-	y:0
+function main() {
+    e = std.atoi("30");
+    print(e);
+    print(std.typeof(e));
+    e = std.itoa(30);
+    print(e);
+    print(std.typeof(e));
+    print(std.format("this is a %s", "string")); // Use %s as the placeholder
+    player = {
+        x: 0,
+        y: 0
+    };
+    print(player);
 }
-print(player)

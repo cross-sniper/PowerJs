@@ -1,4 +1,5 @@
 #include "std.cpp"
+#include "modules/raylib.cpp"
 #include <cstring>
 #include <dlfcn.h> // For dynamic loading of shared object files
 #include <duk_config.h>
@@ -117,128 +118,6 @@ static duk_ret_t input(duk_context *ctx) {
   return 1;
 }
 
-static duk_ret_t load(duk_context *ctx) {
-  const char *module_name =
-      duk_require_string(ctx, 0); // Get the module name from arguments
-  std::string to_require;
-
-// Check if the module exists in the current directory
-#ifndef _WIN32
-  to_require = "./" + std::string(module_name) + ".so";
-#else
-  to_require = ".\\" + std::string(module_name) + ".dll";
-#endif
-  if (access(to_require.c_str(), F_OK) != -1) {
-    // Load the shared object file dynamically
-    void *handle = dlopen(to_require.c_str(), RTLD_LAZY);
-    if (!handle) {
-      std::cerr << "Error loading shared object file: " << dlerror()
-                << std::endl;
-      exit(1); // exit on failure
-    }
-
-    // Construct the function name: dukopen_<module_name>
-    std::string function_name = "dukopen_" + std::string(module_name);
-
-    // Get the address of the Duktape module open function from the shared
-    // object
-    duk_module_open_function module_open_function =
-        (duk_module_open_function)dlsym(handle, function_name.c_str());
-    if (!module_open_function) {
-      std::cerr << "Error finding module open function: " << dlerror()
-                << std::endl;
-      std::cerr << "module:" << module_name << std::endl;
-
-      dlclose(handle); // Close the handle
-      exit(1);         // exit on failure
-    }
-    // Call the module open function to add functionality to the Duktape
-    // context/stack
-    module_open_function(ctx);
-
-    return 1; // Return 1 to indicate success
-  }
-#ifndef _WIN32
-  to_require = "./" + (std::string) "libs" + std::string(module_name) + ".so";
-#else
-  to_require = ".\\" + (std::string) "libs" + std::string(module_name) + ".dll";
-#endif
-  if (access(to_require.c_str(), F_OK) != -1) {
-    // Load the shared object file dynamically
-    void *handle = dlopen(to_require.c_str(), RTLD_LAZY);
-    if (!handle) {
-      std::cerr << "Error loading shared object file: " << dlerror()
-                << std::endl;
-      std::cerr << "module:" << module_name << std::endl;
-
-      exit(1); // exit on failure
-    }
-
-    // Construct the function name: dukopen_<module_name>
-    std::string function_name = "dukopen_" + std::string(module_name);
-
-    // Get the address of the Duktape module open function from the shared
-    // object
-    duk_module_open_function module_open_function =
-        (duk_module_open_function)dlsym(handle, function_name.c_str());
-    if (!module_open_function) {
-      std::cerr << "Error finding module open function: " << dlerror()
-                << std::endl;
-      std::cerr << "module:" << module_name << std::endl;
-
-      dlclose(handle); // Close the handle
-      exit(1);         // exit on failure
-    }
-    // Call the module open function to add functionality to the Duktape
-    // context/stack
-    module_open_function(ctx);
-
-    return 1; // Return 1 to indicate success
-  }
-  // Check if the module exists in ~/.powerjs/libs
-  std::string home_directory = getenv("HOME");
-#ifndef _WIN32
-  to_require =
-      home_directory + "/.powerjs/libs/" + std::string(module_name) + ".so";
-#else
-  to_require =
-      home_directory + "\\.powerjs\\libs\\" + std::string(module_name) + ".dll";
-#endif
-  if (access(to_require.c_str(), F_OK) != -1) {
-    // Load the shared object file dynamically
-    void *handle = dlopen(to_require.c_str(), RTLD_LAZY);
-    if (!handle) {
-      std::cerr << "Error loading shared object file: " << dlerror()
-                << std::endl;
-      std::cerr << "module:" << module_name << std::endl;
-
-      exit(1); // exit on failure
-    }
-
-    // Construct the function name: dukopen_<module_name>
-    std::string function_name = "dukopen_" + std::string(module_name);
-
-    // Get the address of the Duktape module open function from the shared
-    // object
-    duk_module_open_function module_open_function =
-        (duk_module_open_function)dlsym(handle, function_name.c_str());
-    if (!module_open_function) {
-      std::cerr << "Error finding module open function: " << dlerror()
-                << std::endl;
-      std::cerr << "module:" << module_name << std::endl;
-      dlclose(handle); // Close the handle
-      exit(1);         // exit on failure
-    }
-    // Call the module open function to add functionality to the Duktape
-    // context/stack
-    module_open_function(ctx);
-
-    return 1; // Return 1 to indicate success
-  }
-
-  std::cerr << "Module '" << module_name << "' not found." << std::endl;
-  exit(1); // exit on failure
-}
 static duk_ret_t quit(duk_context *ctx) {
   int exit_code = 0;
   if (duk_get_top(ctx) == 1) {
@@ -274,10 +153,8 @@ void initpowerjs(duk_context *context, int argc, const char *argv[]) {
 
   duk_put_global_string(context, "powerjs");
   init_std(context);
+  dukopen_raylib(context);
 
-  // Register the load function
-  duk_push_c_function(context, load, 1);
-  duk_put_global_string(context, "load");
   duk_push_c_function(context, require, 1);
   duk_put_global_string(context, "require");
   duk_push_c_function(context, input, 1);
@@ -315,6 +192,17 @@ int main(int argc, char const *argv[]) {
     std::cerr << "Error evaluating JavaScript: "
               << duk_safe_to_string(context, -1) << std::endl;
     EXIT_CODE = 1;
+  }
+  else{
+    // Evaluate the main script
+    res = duk_peval_string(context,"main(powerjs.args.length, powerjs.args)");
+    if (res != 0) {
+      // Handle error
+      std::cerr << "Error evaluating JavaScript: "
+                << duk_safe_to_string(context, -1) << std::endl;
+      EXIT_CODE = 1;
+    }
+
   }
 
   // Clean up

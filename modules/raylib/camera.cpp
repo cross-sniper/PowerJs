@@ -139,15 +139,15 @@ typedef enum {
 */
 void initCamera3dVars(duk_context* ctx){
   duk_push_number(ctx, CAMERA_CUSTOM);
-  duk_put_prop_string(ctx, -2, "CAMERA_CUSTOM");
+  duk_put_global_string(ctx, "CAMERA_CUSTOM");
   duk_push_number(ctx, CAMERA_FREE);
-  duk_put_prop_string(ctx, -2, "CAMERA_FREE");
+  duk_put_global_string(ctx, "CAMERA_FREE");
   duk_push_number(ctx, CAMERA_ORBITAL);
-  duk_put_prop_string(ctx, -2, "CAMERA_ORBITAL");
+  duk_put_global_string(ctx, "CAMERA_ORBITAL");
   duk_push_number(ctx, CAMERA_FIRST_PERSON);
-  duk_put_prop_string(ctx, -2, "CAMERA_FIRST_PERSON");
+  duk_put_global_string(ctx, "CAMERA_FIRST_PERSON");
   duk_push_number(ctx, CAMERA_THIRD_PERSON);
-  duk_put_prop_string(ctx, -2, "CAMERA_THIRD_PERSON");
+  duk_put_global_string(ctx, "CAMERA_THIRD_PERSON");
 }
 
 duk_ret_t getScreenSize(duk_context *ctx) {
@@ -158,42 +158,44 @@ duk_ret_t getScreenSize(duk_context *ctx) {
   duk_put_prop_string(ctx, -2, "height");
   return 1;
 }
+
 // TODO: some more functions for 3d camera
 void CamInit(duk_context *ctx) {
   duk_push_c_function(ctx, initCamera2D, 1);
-  duk_put_prop_string(ctx, -2, "initCamera2D");
+  duk_put_global_string(ctx, "initCamera2D");
+
   duk_push_c_function(ctx, initCamera3D, 1);
-  duk_put_prop_string(ctx, -2, "initCamera3D");
+  duk_put_global_string(ctx, "initCamera3D");
 
   duk_push_c_function(ctx, updateCameraTarget2D, 1);
-  duk_put_prop_string(ctx, -2, "updateCameraTarget2D");
+  duk_put_global_string(ctx, "updateCameraTarget2D");
 
   duk_push_c_function(ctx, updateCameraOffset2D, 1);
-  duk_put_prop_string(ctx, -2, "updateCameraOffset2D");
+  duk_put_global_string(ctx, "updateCameraOffset2D");
 
   duk_push_c_function(ctx, getScreenSize, 0);
-  duk_put_prop_string(ctx, -2, "GetScreenSize");
+  duk_put_global_string(ctx, "GetScreenSize");
 
   duk_push_c_function(ctx, beginCam2D, 0);
-  duk_put_prop_string(ctx, -2, "useCamera2D");
+  duk_put_global_string(ctx, "useCamera2D");
 
   duk_push_c_function(ctx, endCam2D, 0);
-  duk_put_prop_string(ctx, -2, "stopCamera2D");
+  duk_put_global_string(ctx, "stopCamera2D");
 
   duk_push_c_function(ctx, beginCam3D, 0);
-  duk_put_prop_string(ctx, -2, "useCamera3D");
+  duk_put_global_string(ctx, "useCamera3D");
 
   duk_push_c_function(ctx, endCam3D, 0);
-  duk_put_prop_string(ctx, -2, "stopCamera3D");
+  duk_put_global_string(ctx, "stopCamera3D");
 
   duk_push_c_function(ctx, updateCameraPosition3D, 1);
-  duk_put_prop_string(ctx, -2, "updateCameraPosition3D");
+  duk_put_global_string(ctx, "updateCameraPosition3D");
 
   duk_push_c_function(ctx, setCameraTarget3D, 1);
-  duk_put_prop_string(ctx, -2, "updateCameraRotation3D");
+  duk_put_global_string(ctx, "updateCameraRotation3D");
 
   duk_push_c_function(ctx, updateCameraMode3D, 1);
-  duk_put_prop_string(ctx, -2, "updateCameraMode3D");
+  duk_put_global_string(ctx, "updateCameraMode3D");
 
   initCamera3dVars(ctx);
 }
