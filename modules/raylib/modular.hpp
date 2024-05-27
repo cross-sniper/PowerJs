@@ -4,7 +4,7 @@
 #include <iostream>
 #include <duktape.h>
 #include <stdexcept>
-#include "../../raylib/src/raylib.h"
+#include <raylib.h>
 
 typedef int (*duk_fn) (duk_context *ctx);
 

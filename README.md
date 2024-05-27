@@ -7,15 +7,28 @@ reason: we currently use unix-like file paths for some things(like module loadin
 so until we can make it work with windows' file paths,
 use it under wsl, or on a unix-like system
 
+## pre-requirements
+
+## required
+- duktape
+- raylib
+
+### if you want to compile all of the modules
+- curl
+
 ## What is powerjs?
 powerjs is a simple JavaScript engine built with Duktape,
 designed primarily for game development.
 It provides a module API for extending its functionality.
 
 # Building powerjs
-to build powerjs, git clone this repo, then cd into it,
-afterwords, make sure you have duktape(and any lib needed by the modules(see makefile)),
-and run `make`.
+to build powerjs, run:
+
+```bash
+git clone https://github.com/cross-sniper/powerjs.git
+cd powerjs
+make modules
+```
 
 If all went well,
 you should have a `powerjs` binary on the root folder of the project
@@ -59,7 +72,10 @@ And here's how you would use the "example" module in JavaScript:
 
 ```javascript
 require("example")
-example.example()
+function main()
+{
+	example.example()
+}
 ```
 
 This will output `"this is a example module"` to the console.
@@ -76,3 +92,20 @@ there are 3(as of 22:28 29-03-2024)
 - file:
   - a file handling api, with `open`, `read`, `close`, `write`
 
+# To make games
+
+raylib is built in, so you just need to do something like:
+
+```javascript
+playerPos = Vec2(0,0)
+function main(){
+	InitWindow(800,600,"raylib [core] example - basic window");
+	while(!WindowShouldClose()){
+		BeginDrawing()
+		ClearBackground(black)
+		DrawRectangle(playerPos.x,playerPos.y,10,10,red)
+		EndDrawing()
+	}
+	CloseWindow()
+}
+```

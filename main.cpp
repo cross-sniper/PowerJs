@@ -1,4 +1,5 @@
 #include "std.cpp"
+#include "extras.cpp"
 #include "modules/raylib.cpp"
 #include <cstring>
 #include <dlfcn.h> // For dynamic loading of shared object files
@@ -164,6 +165,8 @@ void initpowerjs(duk_context *context, int argc, const char *argv[]) {
   duk_put_global_string(context, "print");
   duk_push_c_function(context, quit, DUK_VARARGS);
   duk_put_global_string(context, "quit");
+
+  initExtras(context);
 }
 
 int main(int argc, char const *argv[]) {

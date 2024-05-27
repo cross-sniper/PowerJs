@@ -1,4 +1,5 @@
 #include "modular.hpp"
+#include <raylib.h>
 #include <duk_config.h>
 
 Camera2D cam2d;
