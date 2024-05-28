@@ -9,11 +9,8 @@ use it under wsl, or on a unix-like system
 
 ## pre-requirements
 
-## required
 - duktape
 - raylib
-
-### if you want to compile all of the modules
 - curl
 
 ## What is powerjs?

@@ -3,13 +3,13 @@
 
 duk_ret_t Vec2(duk_context *ctx) {
   float x = duk_get_number(ctx, 0);
-  float y = duk_get_number(ctx, 0);
+  float y = duk_get_number(ctx, 1);
   duk_push_object(ctx);
   duk_push_number(ctx, x);
   duk_put_prop_string(ctx, -2, "x");
   duk_push_number(ctx, y);
   duk_put_prop_string(ctx, -2, "y");
-  duk_put_prop_string(ctx, -2, "Vec2");
+
   return 1;
 }
 

@@ -76,6 +76,7 @@ duk_ret_t updateCameraTarget2D(duk_context *ctx) {
   cam2d.target = target;
   return 0;
 }
+
 duk_ret_t updateCameraOffset2D(duk_context *ctx) {
   Vector2 offset;
   offset.x = float(getArg(ctx, 0, "x"));

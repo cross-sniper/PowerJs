@@ -79,6 +79,22 @@ static duk_ret_t setTargetFPS(duk_context *ctx) {
   SetTargetFPS(duk_get_number(ctx, 0));
   return 0;
 }
+static duk_ret_t drawTriangle(duk_context *ctx) {
+	float a1,a2, b1,b2, c1,c2;
+  a1 = getArg(ctx, 0, "x");
+  a2 = getArg(ctx, 0, "y");
+
+  b1 = getArg(ctx, 1, "x");
+  b2 = getArg(ctx, 1, "y");
+
+  c1 = getArg(ctx, 2, "x");
+  c2 = getArg(ctx, 2, "y");
+
+	Color c = getColor(ctx, 3);
+
+  DrawTriangle({a1,a2},{b1,b2},{c1,c2},c);
+  return 0;
+}
 
 static duk_ret_t isKeyDown(duk_context *ctx) {
   int key = duk_get_number(ctx, 0);
@@ -182,7 +198,7 @@ static duk_ret_t getMouseY(duk_context *ctx) {
   return 1;
 }
 
-duk_func fns[] = {{"InitWindow", initwin, "initializes the window"},
+duk_func raylibFunctions[] = {{"InitWindow", initwin, "initializes the window"},
                   {"CloseWindow", closewin, "closes the window"},
                   {"WindowShouldClose", winShouldClose, "returns if the window should close"},
                   {"ClearBackground", clearBg, "clears the background with a given color"},
@@ -194,6 +210,7 @@ duk_func fns[] = {{"InitWindow", initwin, "initializes the window"},
                   {"DrawText", drawText, "draws text on the screen"},
                   {"DrawLine", drawLine, "draws a line"},
                   {"DrawRectangle", drawRectangle, "draws a rectangle"},
+                  {"DrawTriangle", drawTriangle, "draws a triangle"},
                   {"IsKeyDown", isKeyDown, "checks if a key is held down"},
                   {"IsKeyPressed", isKeyPressed,"checks if a key is pressed"},
                   {"DrawRectangleLines", drawRectLines, "draws a rectangle outline"},
@@ -352,7 +369,7 @@ void initMouse(duk_context *L) {
 }
 
 extern "C" duk_ret_t dukopen_raylib(duk_context *ctx) {
-  registerModule(ctx, fns);
+  registerModule(ctx, raylibFunctions);
   init_raylib_keys(ctx);
   initMouse(ctx);
   CamInit(ctx);

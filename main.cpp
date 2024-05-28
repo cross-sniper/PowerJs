@@ -1,6 +1,12 @@
-#include "std.cpp"
-#include "extras.cpp"
+#include "modules/core.cpp"
+#include "modules/fetch.cpp"
 #include "modules/raylib.cpp"
+#include "modules/file.cpp"
+#include "modules/os.cpp"
+#include "modules/server.cpp"
+#include "extras.cpp"
+#include "std.cpp"
+
 #include <cstring>
 #include <dlfcn.h> // For dynamic loading of shared object files
 #include <duk_config.h>
@@ -154,7 +160,6 @@ void initpowerjs(duk_context *context, int argc, const char *argv[]) {
 
   duk_put_global_string(context, "powerjs");
   init_std(context);
-  dukopen_raylib(context);
 
   duk_push_c_function(context, require, 1);
   duk_put_global_string(context, "require");
@@ -167,6 +172,12 @@ void initpowerjs(duk_context *context, int argc, const char *argv[]) {
   duk_put_global_string(context, "quit");
 
   initExtras(context);
+  dukopen_core(context);
+  dukopen_raylib(context);
+  dukopen_file(context);
+  dukopen_os(context);
+  dukopen_server(context);
+
 }
 
 int main(int argc, char const *argv[]) {
