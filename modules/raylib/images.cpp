@@ -52,3 +52,4 @@ void initImg(duk_context *ctx) {
 	duk_push_c_function(ctx, drawTexture, 4);
 	duk_put_global_string(ctx, "DrawTexture");
 }
+

@@ -43,6 +43,9 @@ inline Color getColor(duk_context *ctx, int offset) {
   return c;
 }
 
-
+inline void setGlobalIntVal(duk_context *ctx, const char* name, int val){
+  duk_push_number(ctx, val);
+  duk_put_global_string(ctx, name);
+}
 
 #endif

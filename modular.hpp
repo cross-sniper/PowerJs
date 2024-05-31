@@ -16,8 +16,6 @@ typedef struct duk_func {
 
 // Function to register a module with its functions
 inline void registerModule(duk_context *ctx, duk_func* functions) {
-    // Create a new object to represent the module
-    duk_push_object(ctx);
 
     // Register each function in the module object
     for (int i = 0; functions[i].name != NULL; ++i) {
@@ -31,7 +29,7 @@ inline void registerModule(duk_context *ctx, duk_func* functions) {
         duk_push_string(ctx, functions[i].description);
         duk_put_prop_string(ctx, -2, "__desc");
 
-        duk_put_prop_string(ctx, -2, functions[i].name);
+        duk_put_global_string(ctx, functions[i].name);
     }
 
     // Define the module with the specified name in the global object
