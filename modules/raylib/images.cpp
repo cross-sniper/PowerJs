@@ -42,7 +42,6 @@ duk_ret_t drawTexture(duk_context *ctx) {
 }
 
 void initImg(duk_context *ctx) {
-	printf("Loading images module...\n");
 	duk_push_c_function(ctx, load, 1);
 	duk_put_global_string(ctx, "LoadImageAndTexture");
 	duk_push_c_function(ctx, unloadImage, 1);

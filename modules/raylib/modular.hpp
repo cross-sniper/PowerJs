@@ -15,7 +15,7 @@ inline Color getColor(duk_context *ctx, int offset) {
     printf("Error: Argument at offset %d is not an object\n", offset);
     // print the type
     printf("Type: %d\n", duk_get_type(ctx, offset));
-    return c;
+    exit(1);
   }
 
   // Get the 'r', 'g', 'b', and 'a' properties from the object
@@ -35,6 +35,7 @@ inline Color getColor(duk_context *ctx, int offset) {
   } else {
     // Handle error: Properties missing or not numbers
     printf("Error: RGBA properties missing or not numbers\n");
+    exit(1);
   }
 
   // Pop values from the stack
